@@ -1,0 +1,19 @@
+{
+  "name": "Mundial 2026 BYRON A. MENDOZA",
+  "short_name": "Mundial 2026",
+  "description": "App de quiniela, posiciones, fixture y eliminatorias del Mundial 2026.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#051a13",
+  "theme_color": "#0a3d2e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
