@@ -739,7 +739,7 @@ const KO_MATCHES = [
   {id:73, round:'16', date:'2026-06-28', time:'18:00', venue:'SoFi Stadium, Los Ángeles', h:{type:'group',slot:'2',group:'A'}, a:{type:'group',slot:'2',group:'B'}},
   {id:74, round:'16', date:'2026-06-29', time:'17:00', venue:'Gillette Stadium, Boston', h:{type:'group',slot:'1',group:'E'}, a:{type:'third',allowed:['A','B','C','D','F'],slot:74}},
   {id:75, round:'16', date:'2026-06-29', time:'21:00', venue:'Estadio BBVA, Monterrey', h:{type:'group',slot:'1',group:'F'}, a:{type:'group',slot:'2',group:'C'}},
-  {id:76, round:'16', date:'2026-06-30', time:'13:00', venue:'NRG Stadium, Houston', h:{type:'group',slot:'1',group:'E'}, a:{type:'group',slot:'2',group:'F'}},
+  {id:76, round:'16', date:'2026-06-30', time:'13:00', venue:'NRG Stadium, Houston', h:{type:'group',slot:'1',group:'C'}, a:{type:'group',slot:'2',group:'F'}},
   {id:77, round:'16', date:'2026-06-30', time:'17:00', venue:'MetLife Stadium, NY/NJ', h:{type:'group',slot:'1',group:'I'}, a:{type:'third',allowed:['C','D','F','G','H'],slot:77}},
   {id:78, round:'16', date:'2026-07-01', time:'13:00', venue:'AT&T Stadium, Dallas', h:{type:'group',slot:'2',group:'E'}, a:{type:'group',slot:'2',group:'I'}},
   {id:79, round:'16', date:'2026-07-01', time:'21:00', venue:'Estadio Azteca, CDMX', h:{type:'group',slot:'1',group:'A'}, a:{type:'third',allowed:['C','E','F','H','I'],slot:79}},
@@ -902,12 +902,30 @@ function getThirds() {
   return thirds;
 }
 
+const THIRD_PLACE_MATRIX = {
+  // Mejores terceros reales 2026: D, E, F, G, I, J, K, L.
+  // 74=3F, 77=3I, 79=3E, 80=3K, 81=3D, 82=3G, 85=3J, 87=3L.
+  'DEFGIJKL': {74:'F', 77:'I', 79:'E', 80:'K', 81:'D', 82:'G', 85:'J', 87:'L'}
+};
+
 // Asigna los 8 mejores terceros a los 8 partidos que requieren un tercero
 // Estrategia: greedy. Ordena los terceros por ranking (de mejor a peor). 
 // Para cada partido que necesita un tercero (en orden de aparición), asigna el primer tercero disponible cuyo grupo esté en la lista permitida.
 function assignThirds() {
   const thirds = getThirds().slice(0, 8); // top 8
   if (thirds.length < 8) return null; // no suficientes terceros calculables
+
+  const byGroup = {};
+  thirds.forEach(t => byGroup[t.group] = t);
+  const comboKey = thirds.map(t => t.group).sort().join('');
+  const matrixRow = THIRD_PLACE_MATRIX[comboKey];
+  if (matrixRow) {
+    const officialAssignment = {};
+    Object.keys(matrixRow).forEach(matchId => {
+      officialAssignment[matchId] = byGroup[matrixRow[matchId]];
+    });
+    return officialAssignment;
+  }
   
   // partidos que requieren tercero
   const slots = KO_MATCHES.filter(m => m.round === '16' && m.a.type === 'third').map(m => m.id);
